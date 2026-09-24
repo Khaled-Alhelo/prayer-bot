@@ -6,7 +6,6 @@ from discord.ext import commands, tasks
 import requests
 from flask import Flask
 
-# إنشاء تطبيق Flask
 app = Flask('')
 
 @app.route('/')
@@ -14,10 +13,12 @@ def home():
     return "Bot is alive!"
 
 def run_flask():
-    app.run(host='0.0.0.0', port=8080)
+    # Use PORT from environment (Render sets this dynamically) or default to 8080
+    port = int(os.getenv("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
-    t = Thread(target=run_flask)
+    t = Thread(target=run_flask, daemon=True)
     t.start()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -52,7 +53,6 @@ async def check_prayer_times():
     current_time_str = now.strftime("%H:%M")
     today_str = now.strftime("%Y-%m-%d")
 
-    # البحث عن القناة المسماة "أوقات الصلاة" أو "أوقات-الصلاة" في كافة السيرفرات
     for guild in bot.guilds:
         target_channel = None
         for channel in guild.text_channels:
@@ -72,12 +72,14 @@ async def check_prayer_times():
                         await target_channel.send(f"🕌 حان الآن موعد صلاة **{prayer}** في مدينة **{city}**")
                         sent_today.add(event_key)
             except Exception as e:
-                print(f"خطأ في جلب المواقيت: {e}")
+                print(f"Error fetching times: {e}")
 
 @bot.event
 async def on_ready():
-    print(f"تم تسجيل الدخول بنجاح باسم {bot.user}")
-    check_prayer_times.start()
+    print(f"Logged in successfully as {bot.user}")
+    if not check_prayer_times.is_running():
+        check_prayer_times.start()
 
-keep_alive()
-bot.run(TOKEN)
+if __name__ == "__main__":
+    keep_alive()
+    bot.run(TOKEN)
