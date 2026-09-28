@@ -151,20 +151,20 @@ async def check_prayer_times():
                     if not target_channel:
                         continue
 
-                    # إرسال أذكار الصباح بعد الفجر بـ 20 دقيقة
+                    # إرسال أذكار الصباح بعد الفجر بـ 5 دقائق
                     fajr_hour, fajr_minute = map(int, times["الفجر"].split(':'))
                     fajr_dt = now_local.replace(hour=fajr_hour, minute=fajr_minute, second=0, microsecond=0)
-                    sabah_dt = fajr_dt + datetime.timedelta(minutes=20)
+                    sabah_dt = fajr_dt + datetime.timedelta(minutes=5)
                     if current_time_str == sabah_dt.strftime("%H:%M"):
                         sabah_key = f"{today_str}_sabah_{guild.id}"
                         if sabah_key not in sent_today:
                             await target_channel.send(AZKAR_SABAH)
                             sent_today.add(sabah_key)
 
-                    # إرسال أذكار المساء بعد العصر بـ 20 دقيقة
+                    # إرسال أذكار المساء بعد العصر بـ 5 دقائق
                     asr_hour, asr_minute = map(int, times["العصر"].split(':'))
                     asr_dt = now_local.replace(hour=asr_hour, minute=asr_minute, second=0, microsecond=0)
-                    masaa_dt = asr_dt + datetime.timedelta(minutes=20)
+                    masaa_dt = asr_dt + datetime.timedelta(minutes=5)
                     if current_time_str == masaa_dt.strftime("%H:%M"):
                         masaa_key = f"{today_str}_masaa_{guild.id}"
                         if masaa_key not in sent_today:
